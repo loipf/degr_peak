@@ -89,7 +89,7 @@ extreme_valued_region_segments = data.table(chrom = region_chromosome,
                                             chromEnd = region_end,
                                             name = source_name,
                                             extreme_value_region_status = region_status,
-                                            hyperparameter = glue("interval_coverage:{$params.interval_coverage} interval_coverage_CI:{$params.interval_coverage_CI} $params.interval_coverage_sd_ratio:{$params.interval_coverage_sd_ratio} FDR:{$params.FDR} FDR_CI:{$params.FDR_CI} state_deciding_cutoff:{$params.state_deciding_cutoff}")
+                                            hyperparameter = glue("interval_coverage:{$params.interval_coverage} interval_coverage_CI:{$params.interval_coverage_CI} interval_coverage_sd_ratio:{$params.interval_coverage_sd_ratio} permutations:{$params.permutations} FDR:{$params.FDR} FDR_CI:{$params.FDR_CI} state_deciding_cutoff:{$params.state_deciding_cutoff}")
 )
 
 fwrite(extreme_valued_region_segments, "extreme_valued_region_segments.txt", sep = "\t")
