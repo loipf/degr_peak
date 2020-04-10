@@ -78,11 +78,11 @@ mappings_with_source[, extreme_valued_region := final_regions]
 ### Transforming extreme valued regions to bed file
 mappings_with_source[, contiguous_region_id := rleid(extreme_valued_region)]
 
-region_lenghts = mappings_with_source[, .N, by = contiguous_region_id]
-region_start = mappings_with_source[, .SD[1, BP_Mapping], by = contiguous_region_id]
-region_end = mappings_with_source[, .SD[.N, BP_Mapping], by = contiguous_region_id]
-region_status = mappings_with_source[, .SD[1, extreme_valued_region], by = contiguous_region_id] # taking first status just for convenience
-region_chromosome = mappings_with_source[, .SD[1, CHR_Mapping], by = contiguous_region_id] # taking first mapping just for convenience
+region_lenghts = mappings_with_source[, .N, by = contiguous_region_id][, N]
+region_start = mappings_with_source[, .SD[1, BP_Mapping], by = contiguous_region_id][, V1]
+region_end = mappings_with_source[, .SD[.N, BP_Mapping], by = contiguous_region_id][, V1]
+region_status = mappings_with_source[, .SD[1, extreme_valued_region], by = contiguous_region_id][, V1] # taking first status just for convenience
+region_chromosome = mappings_with_source[, .SD[1, CHR_Mapping], by = contiguous_region_id][, V1] # taking first mapping just for convenience
 
 extreme_valued_region_segments = data.table(chrom = region_chromosome,
                                             chromStart = region_start,
