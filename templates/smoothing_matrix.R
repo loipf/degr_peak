@@ -79,8 +79,8 @@ for(j in 1:num_of_mappings)
   density_matrix[j,] = den_tnorm/sum(den_tnorm)
 }
 
-saveRDS(density_matrix, "density_matrix.rds")
 for (n_source in 5:ncol(peaks_with_mapping))
 {
-  fwrite(peaks_with_mapping[, c(1:4, n_source), with = FALSE], glue("source{n_source - 4}.txt"), sep = "\t", verbose = FALSE)
+  mappings_with_source <- peaks_with_mapping[, c(1:4, n_source), with = FALSE]
+  save(density_matrix, mappings_with_source, file = glue("peak_call_input{n_source - 4}.RData"))
 }

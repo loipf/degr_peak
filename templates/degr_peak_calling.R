@@ -9,8 +9,7 @@ library(glue)
 #Fread mappings with source and densty amtrix
 n_permutations = $params.permutations
 FDR = $params.FDR
-mappings_with_source <- fread("source.txt")
-density_matrix <- readRDS("density_matrix.rds")
+load("peak_call_input.RData")
 
 
 source_to_evaluate <- mappings_with_source[[5]] # last column is the source

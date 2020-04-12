@@ -30,8 +30,7 @@ process smoothing_matrix {
     file "peaks_with_mapping.txt" from peaks_with_mapping.flatten()
   
   output:
-    file "density_matrix.rds" into density_matrix
-    file "source*.txt" into source_data
+    file "peak_call_input*.RData" into peak_call_input
   
   script:
     template 'smoothing_matrix.R'
@@ -44,7 +43,7 @@ process degr_peak_calling {
   echo {params.verbose != null ? true : false}
   
   input:
-    set "density_matrix.rds", "source.txt" from density_matrix.combine(source_data.flatten())
+    file "peak_call_input.RData" from peak_call_input.flatten()
   
   output:
     file "extreme_valued_region_segments.txt" into extreme_valued_regions
