@@ -38,17 +38,13 @@ process smoothing_matrix {
   
 }
 
-index_data = Channel.value(params.n).flatMap { n -> 1..n }
-
-
-
 process degr_peak_calling {
   label 'rscript'
   label 'regular'
   echo {params.verbose != null ? true : false}
   
   input:
-    set n, "density_matrix.rds", "peak_data.txt" from index_data.combine(density_matrix).combine(peaks_data)
+    set "density_matrix.rds", "peak_data.txt" from density_matrix.combine(peaks_data)
   
   output:
     file "extreme_valued_region_segments.txt" into extreme_valued_regions
