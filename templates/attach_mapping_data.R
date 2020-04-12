@@ -4,7 +4,7 @@ library(magrittr)
 library(glue)
 
 #Load mapping and peaks
-CES_data = fread("peak_data.txt", sep = "\t", header = TRUE)
+CES_data = fread("peak_data.txt", header = TRUE)
 gene_info = fread("mapping_data.txt") %>%
   .[top_probe_indicator == 1,] %>% #only jetset top probes
   .[order(BP_Mapping), .(ENTREZID, PROBESET, CHR_Mapping, BP_Mapping)] #required columns

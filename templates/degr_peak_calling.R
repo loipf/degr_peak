@@ -2,6 +2,7 @@
 library(data.table)
 library(magrittr)
 library(glue)
+library(parallel)
 ###########################
 #Permutation Test for obtaining Amplified or Deleted genomic positions
 ###########################
@@ -18,7 +19,9 @@ all_mappings_with_source = mappings_with_source_unordered[J(rownames(density_mat
 
 regions_list = list()
 #### MASTER FOR LOOP to loop through all sources
-for (source in 5:ncol(all_mappings_with_source))
+clust <- makeCluster(4, type="FORK")
+#### MASTER FOR LOOP to loop through all sources
+parLapply(clust, 5:ncol(all_mappings_with_source), function(source)
 {
   mappings_with_source = all_mappings_with_source[, c(1:4, source), with = FALSE]
   
@@ -93,14 +96,14 @@ for (source in 5:ncol(all_mappings_with_source))
   region_status = mappings_with_source[, .SD[1, extreme_valued_region], by = contiguous_region_id][, V1] # taking first status just for convenience
   region_chromosome = mappings_with_source[, .SD[1, as.character(CHR_Mapping)], by = contiguous_region_id][, V1] # taking first mapping just for convenience
   
-  regions_list[[source - 4]] = data.frame(chrom = region_chromosome,
+  return(data.frame(chrom = region_chromosome,
                                               chromStart = region_start,
                                               chromEnd = region_end,
                                               name = source_name,
                                               extreme_value_region_status = region_status,
                                               hyperparameter = glue("interval_coverage:{$params.interval_coverage} interval_coverage_CI:{$params.interval_coverage_CI} interval_coverage_sd_ratio:{$params.interval_coverage_sd_ratio} permutations:{$params.permutations} FDR:{$params.FDR} FDR_CI:{$params.FDR_CI} state_deciding_cutoff:{$params.state_deciding_cutoff}")
-  )
-}
+  ))
+})
 
 extreme_valued_region_segments <- do.call("rbind", regions_list)
 

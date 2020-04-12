@@ -41,6 +41,7 @@ process smoothing_matrix {
 process degr_peak_calling {
   label 'rscript'
   label 'regular'
+  cpus 4
   echo {params.verbose != null ? true : false}
   
   input:
