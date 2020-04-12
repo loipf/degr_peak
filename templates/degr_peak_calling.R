@@ -9,7 +9,13 @@ library(glue)
 #Fread mappings with source and densty amtrix
 n_permutations = $params.permutations
 FDR = $params.FDR
-load("peak_call_input.RData")
+peak_data_index = $n
+
+density_matrix <- readRDS("density_matrix.rds")
+#read source and select genes int he order found on the density matrix
+mappings_with_source_unordered = fread("peak_data.txt", select = c(1:4, peak_data_index + 4))
+setkey(mappings_with_source_unordered, ENTREZID)
+mappings_with_source = mappings_with_source_unordered[J(rownames(density_matrix) %>% as.numeric), nomatch = 0]
 
 
 source_to_evaluate <- mappings_with_source[[5]] # last column is the source

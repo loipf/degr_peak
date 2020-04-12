@@ -13,7 +13,8 @@ process attach_mapping_data {
     file "mapping_data.txt" from Channel.fromPath("$params.mapping_data")
   
   output:
-    file "peaks_with_mapping_*.txt" into peaks_with_mapping
+    file "mapping_*.txt" into mappings
+    file "peaks_data.txt" into peaks_data
   
   script:
     template 'attach_mapping_data.R'
@@ -27,15 +28,19 @@ process smoothing_matrix {
   echo {params.verbose != null ? true : false}
   
   input:
-    file "peaks_with_mapping.txt" from peaks_with_mapping.flatten()
+    file "peaks_with_mapping.txt" from mappings.flatten()
   
   output:
-    file "peak_call_input*.RData" into peak_call_input
+    file "density_matrix.rds" into density_matrix
   
   script:
     template 'smoothing_matrix.R'
   
 }
+
+index_data = Channel.value(params.n).flatMap { n -> 1..n }
+
+
 
 process degr_peak_calling {
   label 'rscript'
@@ -43,7 +48,7 @@ process degr_peak_calling {
   echo {params.verbose != null ? true : false}
   
   input:
-    file "peak_call_input.RData" from peak_call_input.flatten()
+    set n, "density_matrix.rds", "peak_data.txt" from index_data.combine(density_matrix).combine(peaks_data)
   
   output:
     file "extreme_valued_region_segments.txt" into extreme_valued_regions
