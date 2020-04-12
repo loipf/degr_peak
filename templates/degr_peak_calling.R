@@ -17,11 +17,10 @@ mappings_with_source_unordered = fread("peak_data.txt")
 setkey(mappings_with_source_unordered, ENTREZID)
 all_mappings_with_source = mappings_with_source_unordered[J(rownames(density_matrix) %>% as.numeric), nomatch = 0]
 
-regions_list = list()
 #### MASTER FOR LOOP to loop through all sources
 clust <- makeCluster(4, type="FORK")
 #### MASTER FOR LOOP to loop through all sources
-parLapply(clust, 5:ncol(all_mappings_with_source), function(source)
+regions_list <- parLapply(clust, 5:ncol(all_mappings_with_source), function(source)
 {
   mappings_with_source = all_mappings_with_source[, c(1:4, source), with = FALSE]
   
@@ -105,6 +104,6 @@ parLapply(clust, 5:ncol(all_mappings_with_source), function(source)
   ))
 })
 
-extreme_valued_region_segments <- do.call("rbind", regions_list)
+extreme_valued_region_segments <- do.call("rbind", regions_list) %>% as.data.table
 
 fwrite(extreme_valued_region_segments, "extreme_valued_region_segments.txt", sep = "\t")
