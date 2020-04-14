@@ -62,28 +62,18 @@ regions_list <- parLapply(clust, 5:ncol(all_mappings_with_source), function(sour
   #Source index is now the minimun index where at least one permutation surpasses FDR
   
   
-  cutoffs = array(NA, n_permutations)
+  cutoffs = array(0, 1000)
   for(j in 2:(n_permutations + 1))
   {
     for(i in source_index:dim(sorted_permutations)[1])
     {
       current_value = sorted_permutations[i, 1]
-      current_fdr = length(which(sorted_permutations[,j] > current_value))/i
-      if(i != dim(sorted_permutations)[1])
+      # When if condition is met previous values met FDR 
+      # If already at last it can safely be assumed that all will meet FDR as well
+      if(length(which(sorted_permutations[,j] > current_value))/i >= FDR)
       {
-        if(current_fdr >= FDR)
-        {
-          cutoffs[j-1] = current_value
-          break
-        }
-      } else {
-        assert_that(current_fdr <= FDR, msg = glue("given FDR {FDR} cannot be guaranteed in permutation {j}; best fdr {current_fdr} at {i}"))
-        #There is a chance that threshold is smaller still without overmissing fdr
-        next_smallest_value_index = match(TRUE, current_value > sorted_permutations[,j])
-        next_smallest_value = ifelse(is.na(next_smallest_value_index), 0, sorted_permutations[next_smallest_value_index, j])
-        best_fdr = length(which(sorted_permutations[,j] > next_smallest_value))/i
-        
-        cutoffs[j-1] = ifelse(best_fdr <= FDR, next_smallest_value, current_value)
+        cutoffs[j-1] = current_value
+        break
       }
     }
   }
