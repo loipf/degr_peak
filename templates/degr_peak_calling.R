@@ -36,7 +36,7 @@ regions_list <- parLapply(clust, 5:ncol(all_mappings_with_source), function(sour
   smoothened_permutations = density_matrix %*% permutations #smothening the permuted values
   
   sorted_permutations = apply(abs(smoothened_permutations), 2, function(x) sort(x, decreasing = TRUE))
-  
+
   expected_permutation_index = 1 #initialized to minimum location
   candidate_permutation_index = 0 #initialized to 0 just to fail the while condition at start
   
@@ -110,6 +110,7 @@ regions_list <- parLapply(clust, 5:ncol(all_mappings_with_source), function(sour
                                               chromEnd = region_end,
                                               name = source_name,
                                               extreme_value_region_status = region_status,
+                                              mappings_in_region = region_lenghts,
                                               hyperparameter = glue("interval_coverage:{$params.interval_coverage} interval_coverage_CI:{$params.interval_coverage_CI} interval_coverage_sd_ratio:{$params.interval_coverage_sd_ratio} permutations:{$params.permutations} FDR:{$params.FDR} FDR_CI:{$params.FDR_CI} state_deciding_cutoff:{$params.state_deciding_cutoff}")
   ))
 })
