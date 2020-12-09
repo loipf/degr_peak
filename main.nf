@@ -1,5 +1,6 @@
 params.outdir = "results_degr/"
 params.verbose = null
+params.id = ""
 
 
 process attach_mapping_data {

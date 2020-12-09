@@ -15,21 +15,21 @@ FDR = $params.FDR
 density_matrix <- readRDS("density_matrix.rds")
 #read source and select genes int he order found on the density matrix
 mappings_with_source_unordered = fread("peak_data.txt")
-setkey(mappings_with_source_unordered, ENTREZID)
-all_mappings_with_source = mappings_with_source_unordered[J(rownames(density_matrix) %>% as.numeric), nomatch = 0]
+mappings_with_source_unordered[, $params.gene_id := as.character($params.gene_id)]
+setkey(mappings_with_source_unordered, $params.gene_id)
+all_mappings_with_source = mappings_with_source_unordered[J(rownames(density_matrix)), nomatch = 0]
 
 #### MASTER FOR LOOP to loop through all sources
 clust <- makeCluster(4, type="FORK")
 #### MASTER FOR LOOP to loop through all sources
-regions_list <- parLapply(clust, 5:ncol(all_mappings_with_source), function(source)
+regions_list <- parLapply(clust, 5:ncol(all_mappings_with_source), function(source_colnumber)
 {
-  mappings_with_source = all_mappings_with_source[, c(1:4, source), with = FALSE]
+  mappings_with_source = all_mappings_with_source[, c(1:4, source_colnumber), with = FALSE]
   
   source_to_evaluate <- mappings_with_source[[5]] # last column is the source
   
-  source_name = colnames(mappings_with_source)[5] 
-  source_number = substr(source_name, 2, length(source_name)) %>% as.numeric()
-  set_seed = 123456 + source_number
+  source_name = colnames(mappings_with_source)[5]
+  set_seed = 123456 + source_colnumber
   
   permutations <- cbind(source_to_evaluate, replicate(n_permutations, sample(source_to_evaluate)))
   

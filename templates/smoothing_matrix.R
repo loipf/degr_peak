@@ -5,7 +5,7 @@ library(glue)
 
 peaks_with_mapping = fread("peaks_with_mapping.txt") %>%
   .[order(BP_Mapping)]
-
+peaks_with_mapping[, $params.gene_id := as.character($params.gene_id)]
 ########################
 #Finding proper interval for sliding Gaussian Kernel
 #Choosing that interval where 10 or more no. of probesets 
@@ -79,7 +79,7 @@ for(j in 1:num_of_mappings)
   density_matrix[j,] = den_tnorm/sum(den_tnorm)
 }
 
-colnames(density_matrix) <- peaks_with_mapping[, ENTREZID]
-rownames(density_matrix) <- peaks_with_mapping[, ENTREZID]
+colnames(density_matrix) <- peaks_with_mapping[, $params.gene_id]
+rownames(density_matrix) <- peaks_with_mapping[, $params.gene_id]
 
 saveRDS(density_matrix, file = "density_matrix.rds")
