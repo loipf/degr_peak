@@ -17,6 +17,8 @@ gene_info[, $params.gene_id := as.character($params.gene_id)]
 
 #generate peak file with mapping
 CES_data_with_mapping = gene_info[CES_data, on = "$params.gene_id==$params.gene_id", nomatch = 0]
+ #check that each there is some matches between peak data and mapping data
+  assert_that(nrow(CES_data_with_mapping) > 0, msg="Zero matches between mapping data and peak data... using column: $params.gene_id")
 
 for (chromosome in CES_data_with_mapping[, unique(CHR_Mapping)]){
   fwrite(CES_data_with_mapping[CHR_Mapping == chromosome, 1:3], glue("mapping_{chromosome}.txt"), sep = "\t")
