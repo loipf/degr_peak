@@ -16,11 +16,15 @@ process attach_mapping_data {
   output:
     file "mapping_*.txt" into mappings
     file "peaks_data.txt" into peaks_data
+
   
   script:
     template 'attach_mapping_data.R'
   
 }
+
+peaks_data.
+into {peak_data_evc; peak_data_evr}
 
 process smoothing_matrix {
   label 'rscript'
@@ -46,7 +50,7 @@ process degr_peak_calling {
   echo {params.verbose != null ? true : false}
   
   input:
-    set "density_matrix.rds", "peak_data.txt" from density_matrix.combine(peaks_data)
+    set "density_matrix.rds", "peak_data.txt" from density_matrix.combine(peak_data_evr)
   
   output:
     file "extreme_valued_region_segments.txt" into extreme_valued_regions
@@ -55,6 +59,27 @@ process degr_peak_calling {
     template 'degr_peak_calling.R'
   
 }
+
+process extreme_valued_chromosomes {
+  label 'rscript'
+  label 'regular'
+  cpus 8
+  echo {params.verbose != null ? true : false}
+  
+  input:
+    file "peak_data.txt" from peak_data_evc
+  
+  output:
+    file "extreme_valued_chromosomes.txt" into extreme_valued_chromosomes
+
+  when:
+  params.chromosome_level != "NOT_PROVIDED"
+  
+  script:
+    template 'extreme_chromosomes.R'
+  
+}
+
 
 extreme_valued_regions
 .collectFile(name: 'extreme_valued_regions_all_chromosomes.txt', skip: 1, keepHeader: true)
@@ -69,9 +94,11 @@ process print_results {
       
   input:
     file result from extreme_valued_regions_all_chromosomes
+    file result2 from extreme_valued_chromosomes
   
   output:
     file result
+    file result2
   
   """
   echo Printing

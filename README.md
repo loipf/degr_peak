@@ -24,3 +24,5 @@ Permutation test parameters:
 --FDR 						Default 0.05
 --FDR_CI = 0.5
 --state_deciding_cutoff		Default 0.85
+
+--chromosome_level		To output whole chromosome outlier calling
