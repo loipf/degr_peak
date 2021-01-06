@@ -85,6 +85,11 @@ extreme_valued_regions
 .collectFile(name: 'extreme_valued_regions_all_chromosomes.txt', skip: 1, keepHeader: true)
 .set{ extreme_valued_regions_all_chromosomes }
 
+extreme_valued_regions_all_chromosomes
+.mix(extreme_valued_chromosomes)
+.set{ all_results }
+
+
 process print_results {
   label 'rscript'
   label 'regular'
@@ -93,12 +98,10 @@ process print_results {
   publishDir "${params.outdir}/", mode: 'copy', saveAs: { filename -> "${params.id}_$filename" }
       
   input:
-    file result from extreme_valued_regions_all_chromosomes
-    file result2 from extreme_valued_chromosomes
+    file result from all_results
   
   output:
     file result
-    file result2
   
   """
   echo Printing
