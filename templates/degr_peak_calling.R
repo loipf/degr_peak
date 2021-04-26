@@ -29,7 +29,9 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
   source_to_evaluate <- mappings_with_source[[4]] # last column is the source
   
   source_name = colnames(mappings_with_source)[4]
+
   set_seed = 123456 + source_colnumber
+  set.seed(set_seed)
   
   permutations <- cbind(source_to_evaluate, replicate(n_permutations, sample(source_to_evaluate)))
   

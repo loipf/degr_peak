@@ -24,6 +24,8 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
   
   #generate matrix with original data and permutations
   set_seed = 123456 + source_colnumber
+  set.seed(set_seed)
+
   original_and_permutations = cbind(source_values, replicate(n_permutations, sample(source_values))) %>% as.data.table
   original_and_permutations[, CHR_Mapping := all_mappings_with_source[,CHR_Mapping]]
   
