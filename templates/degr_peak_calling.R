@@ -20,7 +20,7 @@ setkey(mappings_with_source_unordered, $params.gene_id)
 all_mappings_with_source = mappings_with_source_unordered[J(rownames(density_matrix)), nomatch = 0]
 
 #### MASTER FOR LOOP to loop through all sources
-clust <- makeCluster(4, type="FORK")
+clust <- makeCluster($params.cores, type="FORK")
 #### MASTER FOR LOOP to loop through all sources
 regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(source_colnumber)
 {

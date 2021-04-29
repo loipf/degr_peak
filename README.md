@@ -12,6 +12,7 @@ OPTIONAL:
 General paramenters:
 
 --outdir		Directory path to print results (Default degr_results) 
+--cores			Number of cores used for degr (Default 4) 
 
 Window Parameters:
 

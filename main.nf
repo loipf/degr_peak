@@ -1,12 +1,13 @@
 params.outdir = "results_degr/"
 params.verbose = null
+params.cores = 4
 params.id = ""
 
 
 process attach_mapping_data {
   label 'rscript'
   label 'regular'
-  cpus 8
+  cpus = params.cores
   echo {params.verbose != null ? true : false}
   
   input:
@@ -29,7 +30,7 @@ into {peak_data_evc; peak_data_evr}
 process smoothing_matrix {
   label 'rscript'
   label 'regular'
-  cpus 8
+  cpus = params.cores
   echo {params.verbose != null ? true : false}
   
   input:
@@ -46,7 +47,7 @@ process smoothing_matrix {
 process degr_peak_calling {
   label 'rscript'
   label 'regular'
-  cpus 4
+  cpus = params.cores
   echo {params.verbose != null ? true : false}
   
   input:
@@ -63,7 +64,7 @@ process degr_peak_calling {
 process extreme_valued_chromosomes {
   label 'rscript'
   label 'regular'
-  cpus 8
+  cpus = params.cores
   echo {params.verbose != null ? true : false}
   
   input:
