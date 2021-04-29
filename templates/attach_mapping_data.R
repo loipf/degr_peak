@@ -6,7 +6,7 @@ library(assertthat)
 
 #Load mapping and peaks
 CES_data = fread("peak_data.txt", header = TRUE)
-gene_info = fread("mapping_data.txt") %>% complete.cases %>%
+gene_info = fread("mapping_data.txt") %>% na.omit %>%
   .[order(BP_Mapping), .($params.gene_id, CHR_Mapping, BP_Mapping)] #required columns
 
 #chack that each gene has only one mapping
