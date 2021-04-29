@@ -28,7 +28,7 @@ Permutation test parameters:
 --permutations			Default 1000
 --FDR 				Default 0.05
 --FDR_CI			Default 0.5
---state_deciding_cutoff	Default 0.85 
+--state_deciding_cutoff		Default 0.85 
 ```
 
 
