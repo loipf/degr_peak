@@ -12,6 +12,8 @@ gene_info = fread("mapping_data.txt") %>% complete.cases %>%
 #chack that each gene has only one mapping
 assert_that(gene_info[, anyDuplicated($params.gene_id)] == 0)
 
+colnames(CES_data)[1] = "$params.gene_id" ## so first column can have any name but is considered as gene_id
+
 CES_data[, $params.gene_id := as.character($params.gene_id)]
 gene_info[, $params.gene_id := as.character($params.gene_id)]
 
