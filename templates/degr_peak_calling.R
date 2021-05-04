@@ -6,9 +6,6 @@ library(parallel)
 library(assertthat)
 
 
-setDTthreads(1)
-
-
 ###########################
 #Permutation Test for obtaining Amplified or Deleted genomic positions
 ###########################
@@ -17,12 +14,16 @@ setDTthreads(1)
 n_permutations = $params.permutations
 FDR = $params.FDR
 
+setDTthreads($params.cores)
+
 density_matrix <- readRDS("density_matrix.rds")
 #read source and select genes int he order found on the density matrix
 mappings_with_source_unordered = fread("peak_data.txt")
 mappings_with_source_unordered[, $params.gene_id := as.character($params.gene_id)]
 setkey(mappings_with_source_unordered, $params.gene_id)
 all_mappings_with_source = mappings_with_source_unordered[J(rownames(density_matrix)), nomatch = 0]
+
+setDTthreads(1)  ## disable multithreading as it interferes with following cluster
 
 #### MASTER FOR LOOP to loop through all sources
 clust <- makeCluster($params.cores, type="FORK")
@@ -47,7 +48,6 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
   expected_permutation_index = 1 #initialized to minimum location
   candidate_permutation_index = 0 #initialized to 0 just to fail the while condition at start
   
-  counter=1
   while(expected_permutation_index != candidate_permutation_index) # While FDR expected index is not equal to candidate index
   {
     #Update expectations
@@ -67,11 +67,6 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
       break
     }
     
-    
-    if(counter > nrow(sorted_permutations)+2) {
-      stop("while loop didnt convert")
-    }
-    counter = counter+1
     
   }
   #Source index is now the minimun index where at least one permutation surpasses FDR
@@ -132,9 +127,9 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
 })
 
 stopCluster(clust)
+setDTthreads($params.cores)
 
 extreme_valued_region_segments <- do.call("rbind", regions_list) %>% as.data.table
-
 fwrite(extreme_valued_region_segments, "extreme_valued_region_segments.txt", sep = "\t")
 
 

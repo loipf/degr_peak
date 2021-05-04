@@ -15,7 +15,7 @@ n_permutations = $params.permutations
 all_mappings_with_source = fread("peak_data.txt")
 setkey(all_mappings_with_source, CHR_Mapping)
 
-clust <- makeCluster(min($params.cores,4), type="FORK")
+clust <- makeCluster($params.cores, type="FORK")
 #### MASTER FOR LOOP to loop through all sources
 regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(source_colnumber)
 {
