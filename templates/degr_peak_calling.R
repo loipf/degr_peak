@@ -4,6 +4,11 @@ library(magrittr)
 library(glue)
 library(parallel)
 library(assertthat)
+
+
+setDTthreads(1)
+
+
 ###########################
 #Permutation Test for obtaining Amplified or Deleted genomic positions
 ###########################
@@ -36,12 +41,14 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
   permutations <- cbind(source_to_evaluate, replicate(n_permutations, sample(source_to_evaluate)))
   
   smoothened_permutations = density_matrix %*% permutations #smothening the permuted values
+  # smoothened_permutations = eigenMapMatMult(density_matrix, permutations, n_cores=4) #smothening the permuted values
   
   sorted_permutations = apply(abs(smoothened_permutations), 2, function(x) sort(x, decreasing = TRUE))
 
   expected_permutation_index = 1 #initialized to minimum location
   candidate_permutation_index = 0 #initialized to 0 just to fail the while condition at start
   
+  counter=1
   while(expected_permutation_index != candidate_permutation_index) # While FDR expected index is not equal to candidate index
   {
     #Update expectations
@@ -57,9 +64,16 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
     } else {
       # in the rare situation where this happens
       # all real source values bigger than the selected perm value
-      source_index = nrows(sorted_permutations)
+      source_index = nrow(sorted_permutations)
       break
     }
+    
+    
+    if(counter > nrow(sorted_permutations)+2) {
+      stop("while loop didnt convert")
+    }
+    counter = counter+1
+    
   }
   #Source index is now the minimun index where at least one permutation surpasses FDR
   
@@ -91,6 +105,7 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
   
   candidate_regions = call_region(smoothened_permutations[,1], first_cutoff)
   re_smoothened = density_matrix %*% candidate_regions
+  # re_smoothened = eigenMapMatMult(density_matrix, candidate_regions, n_cores=4)
   final_regions = call_region(re_smoothened, state_deciding_cutoff)
   
   mappings_with_source[, extreme_valued_region := final_regions]
@@ -107,16 +122,23 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
   region_status = mappings_with_source[, .SD[1, extreme_valued_region], by = contiguous_region_id][, V1] # taking first status just for convenience
   region_chromosome = mappings_with_source[, .SD[1, as.character(CHR_Mapping)], by = contiguous_region_id][, V1] # taking first mapping just for convenience
   
+  
   return(data.frame(chrom = region_chromosome,
                                               chromStart = region_start,
                                               chromEnd = region_end,
                                               name = source_name,
                                               extreme_value_region_status = region_status,
                                               mappings_in_region = region_lenghts,
-                                              hyperparameter = glue("interval_coverage:{$params.interval_coverage} interval_coverage_CI:{$params.interval_coverage_CI} interval_coverage_sd_ratio:{$params.interval_coverage_sd_ratio} permutations:{$params.permutations} FDR:{$params.FDR} FDR_CI:{$params.FDR_CI} state_deciding_cutoff:{$params.state_deciding_cutoff}")
+                                              hyperparameter = paste0(glue("interval_coverage:{$params.interval_coverage} interval_coverage_CI:{$params.interval_coverage_CI} interval_coverage_sd_ratio:{$params.interval_coverage_sd_ratio} permutations:{$params.permutations} FDR:{$params.FDR} FDR_CI:{$params.FDR_CI} state_deciding_cutoff:{$params.state_deciding_cutoff}"))
   ))
+  
 })
+
+stopCluster(clust)
 
 extreme_valued_region_segments <- do.call("rbind", regions_list) %>% as.data.table
 
 fwrite(extreme_valued_region_segments, "extreme_valued_region_segments.txt", sep = "\t")
+
+
+
