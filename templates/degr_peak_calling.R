@@ -41,7 +41,6 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
   permutations <- cbind(source_to_evaluate, replicate(n_permutations, sample(source_to_evaluate)))
   
   smoothened_permutations = density_matrix %*% permutations #smothening the permuted values
-  # smoothened_permutations = eigenMapMatMult(density_matrix, permutations, n_cores=4) #smothening the permuted values
   
   sorted_permutations = apply(abs(smoothened_permutations), 2, function(x) sort(x, decreasing = TRUE))
 
@@ -105,7 +104,6 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
   
   candidate_regions = call_region(smoothened_permutations[,1], first_cutoff)
   re_smoothened = density_matrix %*% candidate_regions
-  # re_smoothened = eigenMapMatMult(density_matrix, candidate_regions, n_cores=4)
   final_regions = call_region(re_smoothened, state_deciding_cutoff)
   
   mappings_with_source[, extreme_valued_region := final_regions]
@@ -121,7 +119,6 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
   region_end = mappings_with_source[, .SD[.N, BP_Mapping], by = contiguous_region_id][, V1]
   region_status = mappings_with_source[, .SD[1, extreme_valued_region], by = contiguous_region_id][, V1] # taking first status just for convenience
   region_chromosome = mappings_with_source[, .SD[1, as.character(CHR_Mapping)], by = contiguous_region_id][, V1] # taking first mapping just for convenience
-  
   
   return(data.frame(chrom = region_chromosome,
                                               chromStart = region_start,

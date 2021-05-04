@@ -57,8 +57,8 @@ process degr_peak_calling {
     file "extreme_valued_region_segments.txt" into extreme_valued_regions
   
   script:
-    template 'degr_peak_calling.R'  
-  
+    template 'degr_peak_calling.R'
+    
 }
 
 process extreme_valued_chromosomes {
