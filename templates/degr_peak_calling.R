@@ -4,6 +4,8 @@ library(magrittr)
 library(glue)
 library(parallel)
 library(assertthat)
+
+
 ###########################
 #Permutation Test for obtaining Amplified or Deleted genomic positions
 ###########################
@@ -12,12 +14,16 @@ library(assertthat)
 n_permutations = $params.permutations
 FDR = $params.FDR
 
+setDTthreads($params.cores)
+
 density_matrix <- readRDS("density_matrix.rds")
 #read source and select genes int he order found on the density matrix
 mappings_with_source_unordered = fread("peak_data.txt")
 mappings_with_source_unordered[, $params.gene_id := as.character($params.gene_id)]
 setkey(mappings_with_source_unordered, $params.gene_id)
 all_mappings_with_source = mappings_with_source_unordered[J(rownames(density_matrix)), nomatch = 0]
+
+setDTthreads(1)  ## disable multithreading as it interferes with following cluster
 
 #### MASTER FOR LOOP to loop through all sources
 clust <- makeCluster($params.cores, type="FORK")
@@ -57,9 +63,11 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
     } else {
       # in the rare situation where this happens
       # all real source values bigger than the selected perm value
-      source_index = nrows(sorted_permutations)
+      source_index = nrow(sorted_permutations)
       break
     }
+    
+    
   }
   #Source index is now the minimun index where at least one permutation surpasses FDR
   
@@ -113,10 +121,16 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
                                               name = source_name,
                                               extreme_value_region_status = region_status,
                                               mappings_in_region = region_lenghts,
-                                              hyperparameter = glue("interval_coverage:{$params.interval_coverage} interval_coverage_CI:{$params.interval_coverage_CI} interval_coverage_sd_ratio:{$params.interval_coverage_sd_ratio} permutations:{$params.permutations} FDR:{$params.FDR} FDR_CI:{$params.FDR_CI} state_deciding_cutoff:{$params.state_deciding_cutoff}")
+                                              hyperparameter = paste0(glue("interval_coverage:{$params.interval_coverage} interval_coverage_CI:{$params.interval_coverage_CI} interval_coverage_sd_ratio:{$params.interval_coverage_sd_ratio} permutations:{$params.permutations} FDR:{$params.FDR} FDR_CI:{$params.FDR_CI} state_deciding_cutoff:{$params.state_deciding_cutoff}"))
   ))
+  
 })
 
-extreme_valued_region_segments <- do.call("rbind", regions_list) %>% as.data.table
+stopCluster(clust)
+setDTthreads($params.cores)
 
+extreme_valued_region_segments <- do.call("rbind", regions_list) %>% as.data.table
 fwrite(extreme_valued_region_segments, "extreme_valued_region_segments.txt", sep = "\t")
+
+
+

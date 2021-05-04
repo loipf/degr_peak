@@ -58,7 +58,7 @@ process degr_peak_calling {
   
   script:
     template 'degr_peak_calling.R'
-  
+    
 }
 
 process extreme_valued_chromosomes {

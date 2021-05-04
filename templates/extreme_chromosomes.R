@@ -15,7 +15,7 @@ n_permutations = $params.permutations
 all_mappings_with_source = fread("peak_data.txt")
 setkey(all_mappings_with_source, CHR_Mapping)
 
-clust <- makeCluster(4, type="FORK")
+clust <- makeCluster($params.cores, type="FORK")
 #### MASTER FOR LOOP to loop through all sources
 regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(source_colnumber)
 {
@@ -63,6 +63,7 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
                     name = source_name
         ))
 })
+stopCluster(clust)
 
 extreme_valued_region_chromosomes <- do.call("rbind", regions_list) %>% as.data.table
 
