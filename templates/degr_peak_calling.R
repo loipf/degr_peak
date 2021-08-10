@@ -23,6 +23,11 @@ mappings_with_source_unordered[, $params.gene_id := as.character($params.gene_id
 setkey(mappings_with_source_unordered, $params.gene_id)
 all_mappings_with_source = mappings_with_source_unordered[J(rownames(density_matrix)), nomatch = 0]
 
+other_mappings_with_source = mappings_with_source_unordered[!J(rownames(density_matrix))]
+if("$params.permutation_strategy" == "other"){
+  assert_that(not_empty(other_mappings_with_source), msg="Permutation_strategy:other requires at least 2 types of mapping (e.g. 2 or more chromosomes)")
+}
+
 setDTthreads(1)  ## disable multithreading as it interferes with following cluster
 
 #### MASTER FOR LOOP to loop through all sources
@@ -34,12 +39,21 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
   
   source_to_evaluate <- mappings_with_source[[4]] # last column is the source
   
+  if("$params.permutation_strategy" == "same"){
+    values_for_permutation <- source_to_evaluate
+  } else if("$params.permutation_strategy" == "other"){
+    values_for_permutation <- other_mappings_with_source[, c(source_colnumber), with = FALSE][[1]]
+  }
+  
   source_name = colnames(mappings_with_source)[4]
 
   set_seed = 123456 + source_colnumber
   set.seed(set_seed)
   
-  permutations <- cbind(source_to_evaluate, replicate(n_permutations, sample(source_to_evaluate)))
+  permutations <- cbind(source_to_evaluate, 
+                          replicate(n_permutations, sample(values_for_permutation, 
+                                                           length(source_to_evaluate),
+                                                           replace = TRUE)))
   
   smoothened_permutations = density_matrix %*% permutations #smothening the permuted values
   
