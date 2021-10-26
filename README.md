@@ -26,11 +26,11 @@ Window Parameters:
 
 Permutation test parameters:
 ```
---permutations					Default 1000
---permutation_strategy			Use *same* or *other* chromosomes for permutation reference (Default same)
---FDR 							Default 0.05
---FDR_CI						Default 0.5
---state_deciding_cutoff			Default 0.85 
+--permutations              Default 1000
+--permutation_strategy      Use *same* or *other* chromosomes for permutation reference (Default same)
+--FDR 			    Default 0.05
+--FDR_CI		    Default 0.5
+--state_deciding_cutoff	    Default 0.85 
 ```
 
 
@@ -47,6 +47,15 @@ install.packages("magrittr")
 install.packages("parallel")
 install.packages("glue")
 install.packages("assertthat")
+```
+
+
+
+---
+### TACNA pipeline
+```
+wget https://raw.githubusercontent.com/loipf/degr_peak/master/big_machine.config
+nextflow loipf/degr_peak --mapping_data MAPPING_FILE.tsv --peak_data /PATH/TO/ica_independent_components_consensus.tsv --outdir OUTDIR -c big_machine.config --cores 10 --permutations 1000 --permutation_strategy other
 ```
 
 
