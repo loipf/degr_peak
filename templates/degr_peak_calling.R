@@ -5,6 +5,7 @@ library(glue)
 library(parallel)
 library(assertthat)
 
+setDTthreads(1)  ## disable multithreading as it interferes with following cluster
 
 ###########################
 #Permutation Test for obtaining Amplified or Deleted genomic positions
@@ -14,7 +15,7 @@ library(assertthat)
 n_permutations = $params.permutations
 FDR = $params.FDR
 
-setDTthreads($params.cores)
+#setDTthreads($params.cores)
 
 density_matrix <- readRDS("density_matrix.rds")
 #read source and select genes int he order found on the density matrix
@@ -28,7 +29,7 @@ if("$params.permutation_strategy" == "other"){
   assert_that(not_empty(other_mappings_with_source), msg="Permutation_strategy:other requires at least 2 types of mapping (e.g. 2 or more chromosomes)")
 }
 
-setDTthreads(1)  ## disable multithreading as it interferes with following cluster
+#setDTthreads(1)  ## disable multithreading as it interferes with following cluster
 
 #### MASTER FOR LOOP to loop through all sources
 clust <- makeCluster($params.cores, type="FORK")
@@ -141,7 +142,7 @@ regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(sour
 })
 
 stopCluster(clust)
-setDTthreads($params.cores)
+#setDTthreads($params.cores)
 
 extreme_valued_region_segments <- do.call("rbind", regions_list) %>% as.data.table
 fwrite(extreme_valued_region_segments, "extreme_valued_region_segments.txt", sep = "\t")
