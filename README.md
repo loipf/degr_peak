@@ -55,7 +55,7 @@ install.packages("assertthat")
 ### TACNA pipeline
 ```
 wget https://raw.githubusercontent.com/loipf/degr_peak/master/big_machine.config
-nextflow loipf/degr_peak --mapping_data MAPPING_FILE.tsv --peak_data /PATH/TO/ica_independent_components_consensus.tsv --outdir OUTDIR -c big_machine.config --cores 10 --permutations 1000 --permutation_strategy other
+nextflow run loipf/degr_peak --mapping_data MAPPING_FILE.tsv --peak_data /PATH/TO/ica_independent_components_consensus.tsv --outdir OUTDIR -c big_machine.config --cores 10 --permutations 1000 --permutation_strategy other
 ```
 
 
