@@ -32,7 +32,7 @@ if("$params.permutation_strategy" == "other"){
 #setDTthreads(1)  ## disable multithreading as it interferes with following cluster
 
 #### MASTER FOR LOOP to loop through all sources
-clust <- makeCluster($params.cores, type="FORK")
+clust <- makeCluster($params.cores)
 #### MASTER FOR LOOP to loop through all sources
 regions_list <- parLapply(clust, 4:ncol(all_mappings_with_source), function(source_colnumber)
 {
